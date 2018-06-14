@@ -4,8 +4,12 @@ A simple echo bot for the Microsoft Bot Framework.
 
 var restify = require('restify');
 var builder = require('botbuilder');
+const { BotFrameworkAdapter } = require('botbuilder');
 var botbuilder_azure = require("botbuilder-azure");
+const { QnAMaker } = require("botbuilder-ai");
 const env = require('dotenv');
+const cognitiveServices = require('botbuilder-cognitiveservices')
+
 
 var inMemoryStorage = new builder.MemoryBotStorage();
 
@@ -14,18 +18,28 @@ const connector = new builder.ChatConnector({
     appId: process.env.MicrosoftAppId,
     appPassword: process.env.MicrosoftAppPassword
 });
-const bot = new builder.UniversalBot(
-    connector,
-    [
-        (session) => {
-            session.beginDialog('ensureProfile', session.userData.profile);
-        },
-        (session, results) => {
-            const profile = session.userData.profile = results.response;
-            session.endConversation(`Hello ${profile.name}, we are excited to work with you!`);
-        }
-    ]
-);
+const bot = new builder.UniversalBot(connector);
+
+// Create recognizer
+var recognizer = new cognitiveServices.QnAMakerRecognizer({
+    knowledgeBaseId: process.env.QnAKnowledgebaseId,
+    authKey: process.env.QnAAuthKey,
+    endpointHostName: process.env.QnAEndpointHostName
+});
+var basicQnAMakerDialog = new cognitiveServices.QnAMakerDialog({
+    recognizers: [recognizer],
+    defaultMessage: `Sorry, I didn't understand the question!`,
+    qnaThreshold: 0.3 
+});
+
+bot.dialog('/', basicQnAMakerDialog).triggerAction({
+    matches: /^question$/i,
+    onSelectAction: (session, args) => {
+        // Runs just before the dialog launches
+        // Overrides default behaviour (of overthrowing the stack)
+        session.beginDialog(args.action, args); 
+    }
+});
 
 // HELP Function
 bot.dialog('/help', [
@@ -74,9 +88,17 @@ bot.dialog('ensureProfile', [
         if (results.response) {
             session.dialogData.profile.email = results.response;
         }
-        session.endDialogWithResult({ response: session.dialogData.profile });
+        // session.endDialogWithResult({ response: session.dialogData.profile });
+        session.endDialog();
     }
-]);
+]).triggerAction({
+    matches: /^profile$/i,
+    onSelectAction: (session, args) => {
+        // Runs just before the dialog launches
+        // Overrides default behaviour (of overthrowing the stack)
+        session.beginDialog(args.action, args);
+    }
+});
 
 // Initial Sales Dialog
 bot.dialog('startSale', [

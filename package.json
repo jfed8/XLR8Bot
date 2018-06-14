@@ -11,7 +11,9 @@
   "license": "MIT",
   "dependencies": {
     "botbuilder": "^3.15.0",
+    "botbuilder-ai": "^4.0.0-preview1.2",
     "botbuilder-azure": "^3.1.0",
+    "botbuilder-cognitiveservices": "^1.2.0",
     "dotenv": "^6.0.0",
     "restify": "^5.2.1"
   },
