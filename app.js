@@ -168,7 +168,7 @@ bot.dialog('startSale', [
 // HELP Function
 bot.dialog('help', [
     function (session) {
-        session.endDialog("Global commands that are available anytime:\n\n* help - Displays these commands.");
+        session.endDialog("Global commands that are available anytime:\n\n* help - Displays these commands.\n* profile - Set up your profile.\n* sale - Takes down information about your project idea.");
     }
 ]).triggerAction({
     matches: /^help$/i,
