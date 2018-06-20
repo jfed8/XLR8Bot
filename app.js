@@ -1,6 +1,7 @@
 /*-----------------------------------------------------------------------------
 My Bot to Automate Sales flow for Software Company - XLR8 Development
 -----------------------------------------------------------------------------*/
+// require('dotenv-extended').load();
 
 var restify = require('restify');
 var builder = require('botbuilder');
@@ -21,34 +22,31 @@ const connector = new builder.ChatConnector({
 const bot = new builder.UniversalBot(connector);
 
 // Create recognizer
-var recognizer = new cognitiveServices.QnAMakerRecognizer({
+var qnarecognizer = new cognitiveServices.QnAMakerRecognizer({
     knowledgeBaseId: process.env.QnAKnowledgebaseId,
     authKey: process.env.QnAAuthKey,
     endpointHostName: process.env.QnAEndpointHostName
 });
-// recognizer.onEnabled((context, callback) => {
-//     if (context.dialogStack().length > 0) {
-//         // Currently inside conversation
-//         callback(null, false);
-//     } else {
-//         callback(null, true);
-//     }
-// })
 
-var basicQnAMakerDialog = new cognitiveServices.QnAMakerDialog({
-    recognizers: [recognizer],
-    defaultMessage: `Sorry, I didn't understand the question.. type 'help' to see a list of available commands!`,
-    qnaThreshold: 0.3 
-});
-
-bot.dialog('/', basicQnAMakerDialog).triggerAction({
-    matches: /^question$/i,
-    onSelectAction: (session, args) => {
-        // Runs just before the dialog launches
-        // Overrides default behaviour (of overthrowing the stack)
-        session.beginDialog(args.action, args); 
+const recognizer = new builder.LuisRecognizer(process.env.LUIS_ENDPOINT_URL)
+recognizer.onEnabled((context, callback) => {
+    if (context.dialogStack().length > 0) {
+        // Currently inside conversation
+        callback(null, false);
+    } else {
+        callback(null, true); 
     }
-});
+})
+
+const intents = new builder.IntentDialog({ 
+	recognizers: [qnarecognizer, recognizer], 
+    intentThreshold: parseFloat(process.env.INTENT_THRESHOLD), 
+    defaultMessage: `Sorry, I didn't understand the question.. type 'help' to see a list of available commands!`,
+    recognizeOrder: builder.RecognizeOrder.series })
+    
+
+
+bot.dialog('/', intents);
 
 
 bot.dialog('ensureProfile', [
