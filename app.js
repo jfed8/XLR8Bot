@@ -40,8 +40,18 @@ const QnADialog = new cognitiveServices.QnAMakerDialog({
 	recognizers: [recognizer],
     defaultMessage: `Sorry, I didn't understand the question.. type 'help' to see a list of available commands!`,
     qnaThreshold: 0.3,
+    feedbackLib: qnaMakerTools
 });
-    
+
+var qnaMakerTools = new cognitiveservices.QnAMakerTools();
+bot.library(qnaMakerTools.createLibrary());
+
+// Override to also include the knowledgebase question with the answer on confident matches
+QnADialog.respondFromQnAMakerResult = function(session, qnaMakerResult){
+    var result = qnaMakerResult;
+    var response = 'Here is the match from my Database:  \r\n  Q: ' + result.answers[0].questions[0] + '  \r\n A: ' + result.answers[0].answer;
+    session.send(response);
+}
 
 bot.dialog('/', QnADialog);
 
