@@ -43,7 +43,7 @@ const QnADialog = new cognitiveServices.QnAMakerDialog({
     feedbackLib: qnaMakerTools
 });
 
-var qnaMakerTools = new cognitiveservices.QnAMakerTools();
+var qnaMakerTools = new cognitiveServices.QnAMakerTools();
 bot.library(qnaMakerTools.createLibrary());
 
 // Override to also include the knowledgebase question with the answer on confident matches
