@@ -1,15 +1,13 @@
 /*-----------------------------------------------------------------------------
 My Bot to Automate Sales flow for Software Company - XLR8 Development
 -----------------------------------------------------------------------------*/
-// require('dotenv-extended').load();
-
 var restify = require('restify');
 var builder = require('botbuilder');
 const { BotFrameworkAdapter } = require('botbuilder');
 var botbuilder_azure = require("botbuilder-azure");
 const { QnAMaker } = require("botbuilder-ai");
 const env = require('dotenv');
-const cognitiveServices = require('botbuilder-cognitiveservices')
+const cognitiveServices = require('botbuilder-cognitiveservices');
 
 
 var inMemoryStorage = new builder.MemoryBotStorage();
@@ -25,26 +23,26 @@ const bot = new builder.UniversalBot(connector);
 var qnarecognizer = new cognitiveServices.QnAMakerRecognizer({
     knowledgeBaseId: process.env.QnAKnowledgebaseId,
     authKey: process.env.QnAAuthKey,
-    endpointHostName: process.env.QnAEndpointHostName
+    endpointHostName: process.env.QnAEndpointHostName,
 });
 
-const recognizer = new builder.LuisRecognizer(process.env.LUIS_ENDPOINT_URL)
-recognizer.onEnabled((context, callback) => {
-    if (context.dialogStack().length > 0) {
-        // Currently inside conversation
-        callback(null, false);
-    } else {
-        callback(null, true); 
-    }
-})
+// const recognizer = new builder.LuisRecognizer(process.env.LUIS_ENDPOINT_URL);
+// recognizer.onEnabled((context, callback) => {
+//     if (context.dialogStack().length > 0) {
+//         // Currently inside conversation
+//         callback(null, false);
+//     } else {
+//         callback(null, true); 
+//     }
+// });
 
 const intents = new builder.IntentDialog({ 
-	recognizers: [qnarecognizer, recognizer], 
+	recognizers: qnarecognizer, 
     intentThreshold: parseFloat(process.env.INTENT_THRESHOLD), 
     defaultMessage: `Sorry, I didn't understand the question.. type 'help' to see a list of available commands!`,
-    recognizeOrder: builder.RecognizeOrder.series })
+    // recognizeOrder: builder.RecognizeOrder.series,
+});
     
-
 
 bot.dialog('/', intents);
 
@@ -53,7 +51,11 @@ bot.dialog('ensureProfile', [
     (session, args, next) => {
         session.dialogData.profile = args || {};
         if (!session.dialogData.profile.name) {
-            builder.Prompts.text(session, `What's your name?`);
+            //Show Typing
+            session.sendTyping();
+            setTimeout(function () {
+                builder.Prompts.text(session, `What's your name?`);
+            }, 1500);
         } else {
             next();
         }
@@ -64,7 +66,11 @@ bot.dialog('ensureProfile', [
             name = results.response;
         }
         if (!session.dialogData.profile.company) {
-            builder.Prompts.text(session, `What company do you work for?`);
+            //Show Typing
+            session.sendTyping();
+            setTimeout(function () {
+                builder.Prompts.text(session, `What company do you work for?`);
+            }, 1500);
         } else {
             next();
         }
@@ -75,7 +81,11 @@ bot.dialog('ensureProfile', [
             company = results.response;
         }
         if (!session.dialogData.profile.email) {
-            builder.Prompts.text(session, `What is your email?`);
+            //Show Typing
+            session.sendTyping();
+            setTimeout(function () {
+                builder.Prompts.text(session, `What is your email?`);
+            }, 1500);
         } else {
             next();
         }
@@ -86,19 +96,20 @@ bot.dialog('ensureProfile', [
             email = results.response;
         }
         if (!session.dialogData.profile.confirmation) {
-            var card = new builder.HeroCard(session);
+            //Show Typing
+            session.sendTyping();
+            setTimeout(function () {
+                var card = new builder.HeroCard(session);
         
-            card.title(session.dialogData.profile.name);
-        
-            card.text(session.dialogData.profile.company);
-
-            card.subtitle(session.dialogData.profile.email);
-
-            var message = new builder.Message(session).attachments([card]);
-
-            session.send(message);
-
-            builder.Prompts.text(session, "Do I have everything right?");
+                card.title(session.dialogData.profile.name);
+                card.text(session.dialogData.profile.company);
+                card.subtitle(session.dialogData.profile.email);
+                var message = new builder.Message(session).attachments([card]);
+                
+                session.send(message);
+                builder.Prompts.text(session, "Do I have everything right?");
+            }, 1500);
+            
         } else {
             next();
         }
