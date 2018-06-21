@@ -17,10 +17,10 @@ const connector = new builder.ChatConnector({
     appId: process.env.MicrosoftAppId,
     appPassword: process.env.MicrosoftAppPassword
 });
-const bot = new builder.UniversalBot(connector);
+const bot = new builder.UniversalBot(connector).set('storage', inMemoryStorage);
 
 // Create recognizer
-var qnarecognizer = new cognitiveServices.QnAMakerRecognizer({
+var recognizer = new cognitiveServices.QnAMakerRecognizer({
     knowledgeBaseId: process.env.QnAKnowledgebaseId,
     authKey: process.env.QnAAuthKey,
     endpointHostName: process.env.QnAEndpointHostName,
@@ -36,15 +36,24 @@ var qnarecognizer = new cognitiveServices.QnAMakerRecognizer({
 //     }
 // });
 
-const intents = new builder.IntentDialog({ 
-	recognizers: qnarecognizer, 
-    intentThreshold: parseFloat(process.env.INTENT_THRESHOLD), 
+const QnADialog = new cognitiveServices.QnAMakerDialog({ 
+	recognizers: [recognizer],
     defaultMessage: `Sorry, I didn't understand the question.. type 'help' to see a list of available commands!`,
-    // recognizeOrder: builder.RecognizeOrder.series,
+    qnaThreshold: 0.0,
 });
     
 
-bot.dialog('/', intents);
+bot.dialog('/', QnADialog);
+
+bot.dialog('beginning', [
+    (session, args) => {
+        //Show Typing
+        session.sendTyping();
+        setTimeout(function () {
+            builder.Prompts.text(session, `Type 'help' to get started`);
+        }, 1500);
+    }
+]);
 
 
 bot.dialog('ensureProfile', [
