@@ -39,7 +39,7 @@ var recognizer = new cognitiveServices.QnAMakerRecognizer({
 const QnADialog = new cognitiveServices.QnAMakerDialog({ 
 	recognizers: [recognizer],
     defaultMessage: `Sorry, I didn't understand the question.. type 'help' to see a list of available commands!`,
-    qnaThreshold: 0.0,
+    qnaThreshold: 0.3,
 });
     
 
