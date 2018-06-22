@@ -65,6 +65,22 @@ bot.dialog('beginning', [
     }
 ]);
 
+bot.dialog('korg', [
+    (session, args) => {
+        //Show Typing
+        session.sendTyping();
+        setTimeout(function () {
+            builder.Prompts.text(session, `Hi, I'm Korg. I'm made of rocks. But don't let that intimidate you, unless you're made of scissors ;)`);
+        }, 1500);
+    }
+]).triggerAction({
+    matches: /^hi$/i,
+    onSelectAction: (session, args) => {
+        // Runs just before the dialog launches
+        session.beginDialog(args.action, args);
+    }
+});
+
 
 bot.dialog('ensureProfile', [
     (session, args, next) => {
