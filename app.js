@@ -49,7 +49,7 @@ bot.library(qnaMakerTools.createLibrary());
 // Override to also include the knowledgebase question with the answer on confident matches
 QnADialog.respondFromQnAMakerResult = function(session, qnaMakerResult){
     var result = qnaMakerResult;
-    var response = 'Here is the match from my Database:  \r\n  Q: ' + result.answers[0].questions[0] + '  \r\n A: ' + result.answers[0].answer;
+    var response = 'Here is a match from my FAQ Database:  \r\n\nQ: ' + result.answers[0].questions[0] + '  \r\nA: ' + result.answers[0].answer;
     session.send(response);
 }
 
@@ -70,7 +70,8 @@ bot.dialog('korg', [
         //Show Typing
         session.sendTyping();
         setTimeout(function () {
-            builder.Prompts.text(session, `Hi, I'm Korg. I'm made of rocks. But don't let that intimidate you, unless you're made of scissors ;)`);
+            builder.Prompts.text(session, `Hi, I'm Korg. I'm made of code. But don't let that intimidate you, unless you're made of viruses ;)`);
+            builder.Prompts.text(session, `I can answer basic questions about XLR8, so ask away! I am still learning, so I'm sorry if I don't get it quite right.`)
         }, 1500);
     }
 ]).triggerAction({
@@ -212,7 +213,7 @@ bot.dialog('startSale', [
 // HELP Function
 bot.dialog('help', [
     function (session) {
-        session.endDialog("Global commands that are available anytime:\n\n* help - Displays these commands.\n* profile - Set up your profile.\n* sale - Takes down information about your project idea.");
+        session.endDialog("Global commands that are available anytime:\n\n'help' - Displays these commands.\n'profile' - Set up your profile.\n'sale' - If you have an idea for a project, type this to get an estimate");
     }
 ]).triggerAction({
     matches: /^help$/i,
