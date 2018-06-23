@@ -75,7 +75,7 @@ bot.dialog('korg', [
         }, 1500);
     }
 ]).triggerAction({
-    matches: /^hi$/i,
+    matches: /^hi$|^hey$|^hello$|^what's your name$/i,
     onSelectAction: (session, args) => {
         // Runs just before the dialog launches
         session.beginDialog(args.action, args);
