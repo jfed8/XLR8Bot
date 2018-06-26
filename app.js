@@ -63,6 +63,7 @@ bot.dialog('beginning', [
         setTimeout(function () {
             builder.Prompts.text(session, `Type 'help' to get started`);
         }, 1500);
+        session.endDialog();
     }
 ]);
 
@@ -74,6 +75,7 @@ bot.dialog('korg', [
             builder.Prompts.text(session, `Hi, I'm the XLR8 Bot.`);
             builder.Prompts.text(session, `I can answer basic questions about XLR8, so ask away! I am still learning, so I'm sorry if I don't get it quite right.`)
         }, 1500);
+        session.endDialog();
     }
 ]).triggerAction({
     matches: /^hi$|^hey$|^hello$/i,
