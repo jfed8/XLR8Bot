@@ -25,14 +25,14 @@ var recognizer = new cognitiveServices.QnAMakerRecognizer({
     authKey: process.env.QnAAuthKey,
     endpointHostName: process.env.QnAEndpointHostName,
 });
-recognizer.onEnabled((context, callback) => {
-    if (context.dialogStack().length > 0) {
-        // Currently inside conversation
-        callback(null, false);
-    } else {
-        callback(null, true); 
-    }
-});
+// recognizer.onEnabled((context, callback) => {
+//     if (context.dialogStack().length > 0) {
+//         // Currently inside conversation
+//         callback(null, false);
+//     } else {
+//         callback(null, true); 
+//     }
+// });
 
 // const recognizer = new builder.LuisRecognizer(process.env.LUIS_ENDPOINT_URL);
 
