@@ -25,45 +25,34 @@ var recognizer = new cognitiveServices.QnAMakerRecognizer({
     authKey: process.env.QnAAuthKey,
     endpointHostName: process.env.QnAEndpointHostName,
 });
-// recognizer.onEnabled((context, callback) => {
-//     if (context.dialogStack().length > 0) {
-//         // Currently inside conversation
-//         callback(null, false);
-//     } else {
-//         callback(null, true); 
-//     }
-// });
-
-// const recognizer = new builder.LuisRecognizer(process.env.LUIS_ENDPOINT_URL);
-
+recognizer.recognize();
 
 const QnADialog = new cognitiveServices.QnAMakerDialog({ 
 	recognizers: [recognizer],
     defaultMessage: `Sorry, I didn't understand the question.. type 'help' to see a list of available commands!`,
-    qnaThreshold: 0.5,
-    feedbackLib: qnaMakerTools
+    qnaThreshold: 0.1,
 });
 
-var qnaMakerTools = new cognitiveServices.QnAMakerTools();
-bot.library(qnaMakerTools.createLibrary());
+// var intentRecognizer = new builder.IntentDialog();
+// var intents = new builder.IntentDialog({ recognizers: [intentRecognizer, recognizer]});
+// bot.dialog('/', intents);
 
 // Override to also include the knowledgebase question with the answer on confident matches
 QnADialog.respondFromQnAMakerResult = function(session, qnaMakerResult){
     var result = qnaMakerResult;
     var response = 'Here is a match from my FAQ Database:  \r\n\nQ: ' + result.answers[0].questions[0] + '  \r\nA: ' + result.answers[0].answer;
-    session.send(response);
+    session.endDialog(response);
 }
 
 bot.dialog('/', QnADialog);
 
-bot.dialog('beginning', [
+bot.dialog('/beginning', [
     (session, args) => {
         //Show Typing
         session.sendTyping();
         setTimeout(function () {
-            builder.Prompts.text(session, `Type 'help' to get started`);
+            session.endDialog(`I didn't quite get that... try to rephrase your query, or type 'help' to see available commands`);
         }, 1500);
-        session.endDialog();
     }
 ]);
 
@@ -72,17 +61,15 @@ bot.dialog('korg', [
         //Show Typing
         session.sendTyping();
         setTimeout(function () {
-            builder.Prompts.text(session, `Hi, I'm the XLR8 Bot.`);
-            builder.Prompts.text(session, `I can answer basic questions about XLR8, so ask away! I am still learning, so I'm sorry if I don't get it quite right.`)
-        }, 1500);
-        session.endDialog();
+            session.endConversation(`Hi, I'm the XLR8 Bot.\n\nI can answer basic questions about XLR8, so ask away! I am still learning, so I'm sorry if I don't get it quite right.`)
+        }, 1000);
     }
 ]).triggerAction({
     matches: /^hi$|^hey$|^hello$/i,
-    onSelectAction: (session, args) => {
-        // Runs just before the dialog launches
-        session.beginDialog(args.action, args);
-    }
+    // onSelectAction: (session, args) => {
+    //     // Runs just before the dialog launches
+    //     session.beginDialog(args.action, args);
+    // }
 });
 
 
@@ -216,7 +203,7 @@ bot.dialog('ensureProfile', [
 // HELP Function
 bot.dialog('help', [
     function (session) {
-        session.endDialog("Global commands that are available anytime:\n\n'help' - Displays these commands.\n'profile' - Set up your profile.");
+        session.endConversation("Global commands that are available anytime:\n\n'help' - Displays these commands.\n'profile' - Set up your profile.");
     }
 ]).triggerAction({
     matches: /^help$/i,
